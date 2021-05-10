@@ -1,43 +1,62 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { useCollection } from "react-firebase-hooks/firestore";
+import { useParams } from "react-router";
 import styled from "styled-components";
+// import { setMovies } from "../features/movie/movieSlice";
+import db from "../firebase";
 
 const Detail = () => {
+  const { id } = useParams();
+  const [movie, setMovie] = useState();
+  console.log(id);
+
+  useEffect(() => {
+    db.collection("movies")
+      .doc(id)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          setMovie(doc.data());
+        } else {
+          // redirect
+        }
+      });
+  }, [id]);
+
+  console.log("my movies", movie);
   return (
     <Container>
-      <Background>
-        <img src="https://cdn.wallpapersafari.com/7/69/dxBmov.jpg" alt="" />
-      </Background>
-      <ImageTitle>
-        <img
-          src="https://i.pinimg.com/originals/20/60/2d/20602d43cc993811e5a6bd1886af4f33.png"
-          alt=""
-        />
-      </ImageTitle>
-      <Controls>
-        <PlayButton>
-          <img src="/images/play-icon-black.png" alt="" />
-          <span>PLAY</span>
-        </PlayButton>
-        <TrailerButton>
-          <img src="/images/play-icon-white.png" alt="" />
-          <span>Trailer</span>
-        </TrailerButton>
-        <AddButton>
-          <span>+</span>
-        </AddButton>
+      {movie && (
+        <>
+          <Background>
+            <img src={movie?.backgroundImg} alt="" />
+          </Background>
+          <ImageTitle>
+            <img src={movie?.titleImg} alt="" />
+          </ImageTitle>
+          <Controls>
+            <PlayButton>
+              <img src="/images/play-icon-black.png" alt="" />
+              <span>PLAY</span>
+            </PlayButton>
+            <TrailerButton>
+              <img src="/images/play-icon-white.png" alt="" />
+              <span>Trailer</span>
+            </TrailerButton>
+            <AddButton>
+              <span>+</span>
+            </AddButton>
 
-        <GroupWatchButton>
-          <img src="/images/group-icon.png" alt="" />
-        </GroupWatchButton>
-      </Controls>
+            <GroupWatchButton>
+              <img src="/images/group-icon.png" alt="" />
+            </GroupWatchButton>
+          </Controls>
 
-      <Subtitle>2018 • 7m • Family, Fantasy, Kids, Animation</Subtitle>
+          <Subtitle>{movie?.subTitle}</Subtitle>
 
-      <Description>
-        A Chinese mom who’s sad when her grown son leaves home gets another
-        chance at motherhood when one of her dumplings springs to life. But she
-        finds that nothing stays cute and small forever.
-      </Description>
+          <Description>{movie?.description}</Description>
+        </>
+      )}
     </Container>
   );
 };
